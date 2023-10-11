@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "app-template.fullname" . }}
+  labels:
+    {{- include "app-template.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount | default 1 }}
+  selector:
+    matchLabels:
+      {{- include "app-template.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels: 
+        {{- include "app-template.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- if .Values.serviceAccount }}
+      serviceAccountName: "{{ include "app-template.serviceAccountName" . }}"
+      {{- end }}
+      {{- if .Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: python
+          {{- if .Values.securityContext }}}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          {{- end }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default "latest" }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy | default "Always"}}
+          ports:
+            - name: grpc
+              containerPort: 9090
+              protocol: TCP
+          env:
+            - name: SERVER_IP
+              value: 0.0.0.0
+            - name: SERVER_PORT
+              value: "9090"

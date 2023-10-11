@@ -1,0 +1,8 @@
+# Specify the image name
+image:
+  repository: h3poteto/grpc_example-server-python
+  tag: master
+  pullPolicy: IfNotPresent
+
+nameOverride: ""
+fullnameOverride: ""
